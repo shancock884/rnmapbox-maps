@@ -65,6 +65,9 @@ const addConstantBlock = (src, { RNMapboxMapsImpl, RNMapboxMapsVersion, RNMapbox
         console.warn('⚠️ RNMapbox: This token will be part of your Podfile. Be careful about committing it to source control.');
         newSrc.push(`$RNMapboxMapsDownloadToken = '${RNMapboxMapsDownloadToken}'`);
     }
+    else {
+        newSrc.push(`$RNMapboxMapsDownloadToken = ENV['MAPBOX_DOWNLOADS_TOKEN']`);
+    }
     if (RNMapboxMapsImpl) {
         newSrc.push(`$RNMapboxMapsImpl = '${RNMapboxMapsImpl}'`);
     }
