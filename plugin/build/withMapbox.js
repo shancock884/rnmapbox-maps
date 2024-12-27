@@ -63,6 +63,9 @@ const addConstantBlock = (src, { RNMapboxMapsImpl, RNMapboxMapsVersion, RNMapbox
     if (RNMapboxMapsDownloadToken) {
         newSrc.push(`$RNMapboxMapsDownloadToken = '${RNMapboxMapsDownloadToken}'`);
     }
+    else {
+        newSrc.push(`$RNMapboxMapsDownloadToken = ENV['MAPBOX_DOWNLOADS_TOKEN']`);
+    }
     if (RNMapboxMapsImpl) {
         newSrc.push(`$RNMapboxMapsImpl = '${RNMapboxMapsImpl}'`);
     }
