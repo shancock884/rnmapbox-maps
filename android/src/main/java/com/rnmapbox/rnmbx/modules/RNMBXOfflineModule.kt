@@ -170,8 +170,8 @@ class RNMBXOfflineModule(private val mReactContext: ReactApplicationContext) :
 
     @ReactMethod
     fun getPackStatus(name: String, promise: Promise) {
-        val pack = tileRegionPacks[name]
-        if (pack == null) {
+        val oldPack = tileRegionPacks[name]
+        if (oldPack == null) {
             promise.reject(Error("Pack: $name not found"))
             return
         }
@@ -182,6 +182,7 @@ class RNMBXOfflineModule(private val mReactContext: ReactApplicationContext) :
                     expected.value?.also {
                         val pack = TileRegionPack(
                             name= name,
+                            state= oldPack.state,
                             progress= toProgress(region),
                             metadata= toJSONObjectSupportingLegacyMetadata(it) ?: JSONObject()
                         )
@@ -391,7 +392,8 @@ class RNMBXOfflineModule(private val mReactContext: ReactApplicationContext) :
                 *results.map { (id,geometry_region_metadata) ->
                     val (geometry, region, metadata) = geometry_region_metadata
                     val metadataJSON = if (metadata != null) { toJSONObjectSupportingLegacyMetadata(metadata) } else { null }
-                    val ret = convertRegionToJSON(region, geometry, metadataJSON)
+                    val prevState = tileRegionPacks[region.id] ? tileRegionPacks[region.id].state : TileRegionPackState.UNKNOWN
+                    val ret = convertRegionToJSON(region, geometry, metadataJSON, prevState)
                     val pack = tileRegionPacks[region.id] ?: TileRegionPack(
                         name= region.id,
                         state= TileRegionPackState.UNKNOWN,
@@ -411,7 +413,7 @@ class RNMBXOfflineModule(private val mReactContext: ReactApplicationContext) :
         }
     }
 
-    private fun convertRegionToJSON(region: TileRegion, geometry: Geometry, metadata: JSONObject?): ReadableMap {
+    private fun convertRegionToJSON(region: TileRegion, geometry: Geometry, metadata: JSONObject?, state: TileRegionPackState): ReadableMap {
         val bb = geometry.calculateBoundingBox()
 
         val jsonBounds = writableArrayOf(
@@ -429,7 +431,7 @@ class RNMBXOfflineModule(private val mReactContext: ReactApplicationContext) :
             "requiredResourceCount" to region.requiredResourceCount,
             "completedResourceCount" to region.completedResourceCount,
             "completedResourceSize" to region.completedResourceSize,
-            "state" to (if (completed) TileRegionPackState.COMPLETE.rawValue else TileRegionPackState.UNKNOWN.rawValue ),
+            "state" to (if (completed) TileRegionPackState.COMPLETE.rawValue else state.rawValue ),
             "metadata" to metadataWithName.toString(),
             "bounds" to jsonBounds,
         );
