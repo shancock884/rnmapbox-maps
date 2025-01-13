@@ -391,7 +391,7 @@ class RNMBXOfflineModule(private val mReactContext: ReactApplicationContext) :
                 *results.map { (id,geometry_region_metadata) ->
                     val (geometry, region, metadata) = geometry_region_metadata
                     val metadataJSON = if (metadata != null) { toJSONObjectSupportingLegacyMetadata(metadata) } else { null }
-                    val prevState = tileRegionPacks[region.id] ? tileRegionPacks[region.id].state : TileRegionPackState.UNKNOWN
+                    val prevState = tileRegionPacks[region.id]?.state ?: TileRegionPackState.UNKNOWN
                     val ret = convertRegionToJSON(region, geometry, metadataJSON, prevState)
                     val pack = tileRegionPacks[region.id] ?: TileRegionPack(
                         name= region.id,
