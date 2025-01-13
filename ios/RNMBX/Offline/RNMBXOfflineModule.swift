@@ -249,6 +249,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
   {
     if let pack = tileRegionPacks[name] {
       pack.cancelables.forEach { $0.cancel() }
+      tileRegionPacks[name]?.state = State.inactive
       resolver(nil)
     } else {
       rejecter("pausePackDownload", "Unknown offline region: \(name)", nil)
@@ -510,7 +511,8 @@ class RNMBXOfflineModule: RCTEventEmitter {
       
       resolve(results.map { (id, geometry_region_metadata) -> [String:Any] in
         let (geometry, region, metadata) = geometry_region_metadata
-        let ret = self.convertRegionToJSON(region: region, geometry: geometry, metadata: metadata)
+        let prevState = self.tileRegionPacks[region.id]?.state ?? State.unknown
+        let ret = self.convertRegionToJSON(region: region, geometry: geometry, metadata: metadata, state: prevState)
         var pack = self.tileRegionPacks[region.id] ?? TileRegionPack(
           name: region.id,
           state: .unknown,
@@ -529,7 +531,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
     }
   }
   
-  func convertRegionToJSON(region: TileRegion, geometry: Geometry, metadata: [String:Any]?) -> [String:Any] {
+  func convertRegionToJSON(region: TileRegion, geometry: Geometry, metadata: [String:Any]?, state: State) -> [String:Any] {
     let bb = RNMBXFeatureUtils.boundingBox(geometry: geometry)
     
     if let bb = bb {
@@ -547,7 +549,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
         "requiredResourceCount": region.requiredResourceCount,
         "completedResourceCount": region.completedResourceCount,
         "completedResourceSize": region.completedResourceSize,
-        "state": completed ? State.complete.rawValue : State.unknown.rawValue,
+        "state": completed ? State.complete.rawValue : state.rawValue,
         "metadata": String(data:try! JSONSerialization.data(withJSONObject: metadata, options: [.prettyPrinted]), encoding: .utf8),
         "bounds": jsonBounds
       ]
