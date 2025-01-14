@@ -209,6 +209,7 @@ class RNMBXOfflineModule(private val mReactContext: ReactApplicationContext) :
             if (pack.cancelable != null) {
                 pack.cancelable?.cancel()
                 pack.cancelable = null
+                pack.state = TileRegionPackState.INACTIVE
                 promise.resolve(null)
             } else {
                 promise.reject("resumeRegionDownload", "Offline pack: $name already cancelled")

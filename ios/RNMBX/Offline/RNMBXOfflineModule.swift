@@ -245,6 +245,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
       if let cancelable = pack.cancelable {
         cancelable.cancel()
         tileRegionPacks[name]?.cancelable = nil
+        tileRegionPacks[name]?.state = State.inactive
         resolver(nil)
       } else {
         rejecter("pausePackDownload", "Offline pack: \(name) already cancelled", nil)
