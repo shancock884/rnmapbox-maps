@@ -249,6 +249,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
   {
     if let pack = tileRegionPacks[name] {
       pack.cancelables.forEach { $0.cancel() }
+      tileRegionPacks[name]?.state = State.inactive
       resolver(nil)
     } else {
       rejecter("pausePackDownload", "Unknown offline region: \(name)", nil)
