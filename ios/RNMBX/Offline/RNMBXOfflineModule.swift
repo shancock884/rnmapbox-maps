@@ -462,6 +462,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
       
       resolve(results.map { (id, geometry_region_metadata) -> [String:Any] in
         let (geometry, region, metadata) = geometry_region_metadata
+        let prevState = self.tileRegionPacks[region.id]?.state ?? State.unknown
         let ret = self.convertRegionToJSON(region: region, geometry: geometry, metadata: metadata)
         var pack = self.tileRegionPacks[region.id] ?? TileRegionPack(
           name: region.id,
@@ -481,7 +482,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
     }
   }
   
-  func convertRegionToJSON(region: TileRegion, geometry: Geometry, metadata: [String:Any]?) -> [String:Any] {
+  func convertRegionToJSON(region: TileRegion, geometry: Geometry, metadata: [String:Any]?, state: State) -> [String:Any] {
     let bb = RNMBXFeatureUtils.boundingBox(geometry: geometry)
     
     if let bb = bb {
@@ -499,7 +500,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
         "requiredResourceCount": region.requiredResourceCount,
         "completedResourceCount": region.completedResourceCount,
         "completedResourceSize": region.completedResourceSize,
-        "state": completed ? State.complete.rawValue : State.unknown.rawValue,
+        "state": completed ? State.complete.rawValue : state.rawValue,
         "metadata": String(data:try! JSONSerialization.data(withJSONObject: metadata, options: [.prettyPrinted]), encoding: .utf8),
         "bounds": jsonBounds
       ]
