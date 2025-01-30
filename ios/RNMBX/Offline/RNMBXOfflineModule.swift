@@ -512,7 +512,7 @@ class RNMBXOfflineModule: RCTEventEmitter {
       resolve(results.map { (id, geometry_region_metadata) -> [String:Any] in
         let (geometry, region, metadata) = geometry_region_metadata
         let prevState = self.tileRegionPacks[region.id]?.state ?? State.unknown
-        let ret = self.convertRegionToJSON(region: region, geometry: geometry, metadata: metadata)
+        let ret = self.convertRegionToJSON(region: region, geometry: geometry, metadata: metadata, state: prevState)
         var pack = self.tileRegionPacks[region.id] ?? TileRegionPack(
           name: region.id,
           state: .unknown,
